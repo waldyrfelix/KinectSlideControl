@@ -1,26 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using KinectSlideControl.Windows.Properties;
-using Microsoft.Office.Core;
-using ppt = Microsoft.Office.Interop.PowerPoint;
 
 namespace KinectSlideControl.Windows
 {
     public partial class Form1 : Form
     {
-        private PowerPointHelper helper;
-
+        private PowerPointHelper pptHelper;
+        private KinectHelper kinectHelper;
+        
         public Form1()
         {
             InitializeComponent();
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Hide();
+
+            notifyIcon1.Icon = Resources.Openkinect_thumbnail;
+            notifyIcon1.ShowBalloonTip(500);
+
+            pptHelper = new PowerPointHelper();
+            kinectHelper = new KinectHelper();
+
+            kinectHelper.NextSlide += new NextSlideEventHandler(kinectHelper_NextSlide);
+            kinectHelper.PrevSlide += new PrevSlideEventHandler(kinectHelper_PrevSlide);
+            kinectHelper.IniciarKinect();
+
+        }
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
@@ -33,9 +41,9 @@ namespace KinectSlideControl.Windows
             
             if (path == null) { return; }
 
-            helper.OpenPowerPointApplication(path);
-            helper.SetSlideConfiguration();
-            helper.ShowSlidePresentation();
+            pptHelper.OpenPowerPointApplication(path);
+            pptHelper.SetSlideConfiguration();
+            pptHelper.ShowSlidePresentation();
         }
 
         private string getFilePath()
@@ -52,17 +60,18 @@ namespace KinectSlideControl.Windows
 
         private void btnPrev_Click(object sender, EventArgs e)
         {
-            helper.PrevSlide();
+            pptHelper.PrevSlide();
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            helper.NextSlide();
+            pptHelper.NextSlide();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            helper.ClosePresentation();
+            pptHelper.ClosePresentation();
+            kinectHelper.Close();
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -75,13 +84,14 @@ namespace KinectSlideControl.Windows
             this.Close();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        void kinectHelper_PrevSlide()
         {
-            helper = new PowerPointHelper();
-            this.Hide();
+            pptHelper.PrevSlide();
+        }
 
-            notifyIcon1.Icon = Resources.Openkinect_thumbnail;
-            notifyIcon1.ShowBalloonTip(1000);
+        void kinectHelper_NextSlide()
+        {
+            pptHelper.NextSlide();
         }
 
         private void restaurarToolStripMenuItem_Click(object sender, EventArgs e)
