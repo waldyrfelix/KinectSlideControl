@@ -97,10 +97,6 @@ namespace KinectSlideControl.Windows
         {
             try
             {
-                this.swipeDetector.Dispose();
-                this.sessionManager.Dispose();
-                this.context.Close();
-                this.context.Dispose();
                 this.thread.Abort();
             }
             catch (ThreadAbortException) { }
